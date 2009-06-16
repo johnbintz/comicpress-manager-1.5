@@ -8,6 +8,8 @@ require_once(realpath(dirname(__FILE__) . '/../../mockpress/mockpress.php'));
 class ComicPressSidebarStandardTest extends PHPUnit_Framework_TestCase {
 	function testInitialize() {
 		global $comicpress_manager;
+		
+		$this->markTestIncomplete();
 	}
 	
 	function providerTestThumbnailGenerationInfo() {
