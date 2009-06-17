@@ -47,9 +47,10 @@ class ComicPressSidebarStandard extends ComicPressView {
 		$this->thumbnail_generation = array();
 		
     foreach (array('archive', 'rss') as $type) {
+		  $option = $comicpress_manager->get_cpm_option("cpm-${type}-generate-thumbnails");
 			if (
 				($comicpress_manager->scale_method !== false) &&
-				($comicpress_manager->get_cpm_option("cpm-${type}-generate-thumbnails") == 1) &&
+				($option == 1) &&
 				($comicpress_manager->separate_thumbs_folder_defined[$type]) &&
 				($comicpress_manager->thumbs_folder_writable[$type])
 			) {
@@ -58,15 +59,16 @@ class ComicPressSidebarStandard extends ComicPressView {
 				$reasons = array();
 
 				if ($comicpress_manager->scale_method == false) { $reasons[] = __("No scaling software", 'comicpress-manager'); }
-				if ($comicpress_manager->get_cpm_option("cpm-${type}-generate-thumbnails") == 0) {
+				if ($option == 0) {
 					$reasons[] = __("Generation disabled", 'comicpress-manager');
 				} else {
 					if (!$comicpress_manager->separate_thumbs_folder_defined[$type]) { $reasons[] = __("Same as comics folder", 'comicpress-manager'); }
 					if (!$comicpress_manager->thumbs_folder_writable[$type]) { $reasons[] = __("Not writable", 'comicpress-manager'); }
 				}
-				$this->thumbnail_generation = $reasons;
+				$this->thumbnail_generation[$type] = $reasons;
 			}
 		}
+		return $this->thumbnail_generation;
 	}
 }
 
