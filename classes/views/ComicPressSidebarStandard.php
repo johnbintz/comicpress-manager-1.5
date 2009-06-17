@@ -1,7 +1,18 @@
 <?php
 
 class ComicPressSidebarStandard extends ComicPressView {
-	function ComicPressSidebarStandard() {
+	function ComicPressSidebarStandard() {}
+	
+	function _get_subdir_path() {
+		global $comicpress_manager;
+		
+		$this->subdir_path = '';
+		if (($subdir = $comicpress_manager->get_subcomic_directory()) !== false) {
+			$this->subdir_path .= '/' . $subdir;
+		}	
+	}
+	
+	function _all_comic_dates_ok() {
 		global $comicpress_manager;
 		
 		$this->all_comic_dates_ok = true;
@@ -18,15 +29,14 @@ class ComicPressSidebarStandard extends ComicPressView {
     if ($this->all_comic_dates_ok) {
 		  $this->too_many_comics_message = ", <em>" . __("multiple files on the same date!", 'comicpress-manager')  . "</em>";
 		}
-
-		$this->subdir_path = '';
-		if (($subdir = $comicpress_manager->get_subcomic_directory()) !== false) {
-			$this->subdir_path .= '/' . $subdir;
-		}
 	}
 	
 	function render() {
 		global $comicpress_manager;
+		
+		$this->_get_subdir_path();
+		$this->_all_comic_dates_ok();
+		$this->_get_thumbnail_generation_info();
 		
 		import($this->_partial_path("sidebar"));
 	}

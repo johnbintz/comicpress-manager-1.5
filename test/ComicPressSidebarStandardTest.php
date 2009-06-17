@@ -6,10 +6,35 @@ require_once(realpath(dirname(__FILE__) . '/../classes/views/ComicPressSidebarSt
 require_once(realpath(dirname(__FILE__) . '/../../mockpress/mockpress.php'));
  
 class ComicPressSidebarStandardTest extends PHPUnit_Framework_TestCase {
-	function testInitialize() {
+	function testAllComicDatesOK() {
 		global $comicpress_manager;
 		
-		$this->markTestIncomplete();
+		// no comics
+		$comicpress_manager = $this->getMock('ComicPressManager');
+		$comicpress_manager->comic_files = array();
+
+		$v = new ComicPressSidebarStandard();
+		$v->_all_comic_dates_ok();
+		$this->assertTrue($v->all_comic_dates_ok);
+		
+		// one comic
+		$comicpress_manager = $this->getMock('ComicPressManager', array('breakdown_comic_filename'));
+		$comicpress_manager->comic_files = array("test");
+		$comicpress_manager->expects($this->once())->method('breakdown_comic_filename')->will($this->returnValue(array('date' => "test")));
+		
+		$v = new ComicPressSidebarStandard();
+		$v->_all_comic_dates_ok();
+		$this->assertTrue($v->all_comic_dates_ok);
+		
+		// two comics	
+		
+		$comicpress_manager = $this->getMock('ComicPressManager', array('breakdown_comic_filename'));
+		$comicpress_manager->comic_files = array("test", "test2");
+		$comicpress_manager->expects($this->exactly(2))->method('breakdown_comic_filename')->will($this->returnValue(array('date' => "test")));
+		
+		$v = new ComicPressSidebarStandard();
+		$v->_all_comic_dates_ok();
+		$this->assertFalse($v->all_comic_dates_ok);
 	}
 	
 	function providerTestThumbnailGenerationInfo() {
@@ -60,11 +85,11 @@ class ComicPressSidebarStandardTest extends PHPUnit_Framework_TestCase {
 		
 		$comicpress_manager = $this->getMock('ComicPressManager', array('breakdown_comic_filename', 'get_subcomic_directory', 'get_cpm_option'));
 
-		$comicpress_manager->expects($this->at(2))
+		$comicpress_manager->expects($this->at(1))
 											 ->method('get_cpm_option')
 											 ->with('cpm-archive-generate-thumbnails')
 											 ->will($this->returnValue($info['option-archive']));
-		$comicpress_manager->expects($this->at(3))
+		$comicpress_manager->expects($this->at(2))
 											 ->method('get_cpm_option')
 											 ->with('cpm-rss-generate-thumbnails')
 											 ->will($this->returnValue($info['option-archive']));
