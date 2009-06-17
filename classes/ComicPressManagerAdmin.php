@@ -61,6 +61,7 @@ class ComicPressManagerAdmin {
   function _show_view($view) {
     require_once(dirname(__FILE__) . '/views/' . $view . ".php");
     $view = new $view();
+		if (method_exists($view, "init")) { $view->init(); }
     $view->render();
   }
 
