@@ -15,18 +15,18 @@ class ComicPressSidebarStandard extends ComicPressView {
 	function _all_comic_dates_ok() {
 		global $comicpress_manager;
 		
-		$this->all_comic_dates_ok = true;
-		$this->all_comic_dates = array();
+		$all_comic_dates_ok = true;
+		$all_comic_dates = array();
 		
 		foreach ($comicpress_manager->comic_files as $comic_file) {
 			if (($result = $comicpress_manager->breakdown_comic_filename(pathinfo($comic_file, PATHINFO_BASENAME))) !== false) {
-				if (isset($this->all_comic_dates[$result['date']])) { $this->all_comic_dates_ok = false; break; }
-				$this->all_comic_dates[$result['date']] = true;
+				if (isset($all_comic_dates[$result['date']])) { $all_comic_dates_ok = false; break; }
+				$all_comic_dates[$result['date']] = true;
 			}
 		}
 
     $this->too_many_comics_message = "";
-    if ($this->all_comic_dates_ok) {
+    if (!$all_comic_dates_ok) {
 		  $this->too_many_comics_message = ", <em>" . __("multiple files on the same date!", 'comicpress-manager')  . "</em>";
 		}
 	}

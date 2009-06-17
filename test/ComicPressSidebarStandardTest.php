@@ -15,7 +15,7 @@ class ComicPressSidebarStandardTest extends PHPUnit_Framework_TestCase {
 
 		$v = new ComicPressSidebarStandard();
 		$v->_all_comic_dates_ok();
-		$this->assertTrue($v->all_comic_dates_ok);
+		$this->assertTrue(empty($v->too_many_comics_message));
 		
 		// one comic
 		$comicpress_manager = $this->getMock('ComicPressManager', array('breakdown_comic_filename'));
@@ -24,7 +24,7 @@ class ComicPressSidebarStandardTest extends PHPUnit_Framework_TestCase {
 		
 		$v = new ComicPressSidebarStandard();
 		$v->_all_comic_dates_ok();
-		$this->assertTrue($v->all_comic_dates_ok);
+		$this->assertTrue(empty($v->too_many_comics_message));
 		
 		// two comics	
 		
@@ -34,7 +34,7 @@ class ComicPressSidebarStandardTest extends PHPUnit_Framework_TestCase {
 		
 		$v = new ComicPressSidebarStandard();
 		$v->_all_comic_dates_ok();
-		$this->assertFalse($v->all_comic_dates_ok);
+		$this->assertTrue(!empty($v->too_many_comics_message));
 	}
 	
 	function providerTestThumbnailGenerationInfo() {
@@ -111,6 +111,12 @@ class ComicPressSidebarStandardTest extends PHPUnit_Framework_TestCase {
 		$result = $s->_get_thumbnail_generation_info();
 		$this->assertTrue(!empty($result));
 		$this->assertEquals($info['result'], $result);
+	}
+	
+	function testRender() {
+		global $comicpress_manager;
+
+		// 
 	}
 }
 
