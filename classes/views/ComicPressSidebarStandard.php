@@ -31,14 +31,38 @@ class ComicPressSidebarStandard extends ComicPressView {
 		}
 	}
 	
-	function render() {
-		global $comicpress_manager;
-		
+	function init() {
 		$this->_get_subdir_path();
 		$this->_all_comic_dates_ok();
 		$this->_get_thumbnail_generation_info();
+	}
+	
+	function render() {
+		global $comicpress_manager, $comicpress_manager_admin;
 		
-		import($this->_partial_path("sidebar"));
+		foreach (array(
+			'comiccat' => 'comic_category',
+			'blogcat' => 'blog_category'
+		) as $param => $field) {
+			$result = false;
+			if (isset($comicpress_manager->properties[$param])) {
+				$check = $comicpress_manager->properties[$param];
+				if (!is_array($check)) { $check = array($check); }
+				
+				$result = array();
+				foreach ($check as $cat_id) {
+					$category = get_category($cat_id);
+					if (!is_wp_error($category)) {
+					  $result[] = $category;
+					} else {
+					  $result = false; break;
+					}
+				}
+			}
+			$this->{$field} = $result;
+		}
+		
+		include($this->_partial_path("sidebar"));
 	}
 	
 	function _get_thumbnail_generation_info() {

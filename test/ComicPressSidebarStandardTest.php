@@ -113,10 +113,52 @@ class ComicPressSidebarStandardTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($info['result'], $result);
 	}
 	
-	function testRender() {
-		global $comicpress_manager;
+	function testRenderCategoryIssues() {
+		global $comicpress_manager, $comicpress_manager_admin;
 
-		// 
+		$s = new ComicPressSidebarStandard();
+		$s->thumbnail_generation = array('rss' => true, 'archive' => array("test"));
+		
+		$comicpress_manager_admin = $this->getMock('ComicPressManagerAdmin', array('show_debug_info'));
+
+		ob_start();
+		$s->render();
+		$source = ob_get_clean();
+		
+		$this->assertTrue(($xml = _to_xml($source, true)) !== false);
+		$this->assertFalse($s->comic_category);
+		$this->assertFalse($s->blog_category);
+		
+		foreach (array(
+			'//em[text()="Not defined!"]/../strong[text()="Comic categories:"]' => true,
+			'//em[text()="Not defined!"]/../strong[text()="Blog categories:"]' => true,
+		) as $xpath => $value) {
+			$this->assertTrue(_xpath_test($xml, $xpath, $value), $xpath);
+		}
+  }
+
+	function testRenderGenerationStates() {
+		global $comicpress_manager, $comicpress_manager_admin;
+		
+		add_category(1, (object)array('name' => 'Comics'));
+		add_category(2, (object)array('name' => 'Blog'));
+		
+		$s = new ComicPressSidebarStandard();
+		$s->thumbnail_generation = array('rss' => true, 'archive' => array("test"));
+		
+		$comicpress_manager_admin = $this->getMock('ComicPressManagerAdmin', array('show_debug_info'));
+		
+		ob_start();
+		$s->render();
+		$source = ob_get_clean();
+		
+		$this->assertTrue(($xml = _to_xml($source, true)) !== false);
+		foreach (array(
+		) as $xpath => $value) {
+			$this->assertTrue(_xpath_test($xml, $xpath, $value), $xpath);
+		}
+		
+		$this->markTestIncomplete();
 	}
 }
 
