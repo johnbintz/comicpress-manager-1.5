@@ -4,7 +4,7 @@ class ComicPressPostEditor extends ComicPressView {
   function ComicPressPostEditor($width = 435, $is_import = false) {
     global $comicpress_manager;
 
-    if (!is_null(get_category($comicpress_manager->properties['comiccat']))) {
+    if (!is_wp_error(get_category($comicpress_manager->properties['comiccat']))) {
       $this->form_titles_and_fields = array();
       
       $this->_storyline_setup();
