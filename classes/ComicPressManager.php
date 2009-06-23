@@ -110,7 +110,7 @@ class ComicPressManager {
    * @return string|boolean The document root, or false if there was an error.
    */
   function calculate_document_root($override_server_info = null) {
-    global $cpm_attempted_document_roots;
+    global $cpm_attempted_document_roots, $wpmu_version;
     $cpm_attempted_document_roots = array();
     
     $server_info = !is_null($override_server_info) ? $override_server_info : $_SERVER;
@@ -153,7 +153,7 @@ class ComicPressManager {
     if (is_null($document_root)) { return false; }
 
     // WPMU
-    if (function_exists('get_site_option')) {
+    if (!empty($wpmu_version) && function_exists('cpm_wpmu_modify_path')) {
       $document_root = cpm_wpmu_modify_path($document_root);
     }
 
@@ -564,13 +564,15 @@ class ComicPressManager {
    * Read the ComicPress config.
    */
   function read_comicpress_config($override_config = null) {
-    $method = null;
+    global $wpmu_version;
+		
+		$method = null;
     
     if (is_array($override_config)) {
       $method = __("Unit Testing", 'comicpress-manager');
       $this->properties = array_merge($this->properties, $override_config);
     } else {
-      if (function_exists('get_site_option')) {
+			if (!empty($wpmu_version) && function_exists('cpm_wpmu_load_options')) {
         cpm_wpmu_load_options();
         $method = __("WordPress Options", 'comicpress-manager');
       } else {
