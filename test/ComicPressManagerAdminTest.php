@@ -10,8 +10,11 @@ define("CPM_STRLEN_REALPATH_DOCUMENT_ROOT", strlen(realpath(CPM_DOCUMENT_ROOT)))
 
 class ComicPressManagerAdminTest extends PHPUnit_Framework_TestCase {
   function setUp() {
+    global $comicpress_manager;
+    
     _reset_wp();
     $this->adm = new ComicPressManagerAdmin();
+    unset($comicpress_manager);
   }
   
   function providerTestSetUpHooks() {
@@ -984,7 +987,7 @@ class ComicPressManagerAdminTest extends PHPUnit_Framework_TestCase {
     $adm->expects($this->any())->method('edit_config');
     $adm->expects($this->any())->method('get_backup_files')->will($this->returnValue(array()));
     
-    $comicpress_manager = $this->getMock('ComicPressManager');
+    $comicpress_manager = $this->getMock('ComicPressManager', array('get_subcomic_directory'));
     $comicpress_manager->errors = array('test');
     $comicpress_manager->show_config_editor = false;
     $comicpress_manager->config_method = "";
@@ -996,7 +999,7 @@ class ComicPressManagerAdminTest extends PHPUnit_Framework_TestCase {
     $this->assertTrue(strpos($result, "You won't be able") !== false);
     $this->assertTrue(strpos($result, "Debug info") !== false);
     
-    $comicpress_manager = $this->getMock('ComicPressManager');
+    $comicpress_manager = $this->getMock('ComicPressManager', array('get_subcomic_directory'));
     $comicpress_manager->errors = array('test');
     $comicpress_manager->show_config_editor = true;
     $comicpress_manager->config_method = "";
@@ -1015,7 +1018,7 @@ class ComicPressManagerAdminTest extends PHPUnit_Framework_TestCase {
     $adm->expects($this->never())->method('edit_config');
     $adm->expects($this->once())->method('get_backup_files')->will($this->returnValue(array('12345')));
 
-    $comicpress_manager = $this->getMock('ComicPressManager');
+    $comicpress_manager = $this->getMock('ComicPressManager', array('get_subcomic_directory'));
     $comicpress_manager->errors = array('test');
     $comicpress_manager->show_config_editor = false;
     $comicpress_manager->can_write_config = true;
@@ -1034,7 +1037,7 @@ class ComicPressManagerAdminTest extends PHPUnit_Framework_TestCase {
   function testSetupAdminMenu() {
     global $comicpress_manager, $plugin_page, $wp_test_expectations, $pagenow;
     
-    $comicpress_manager = $this->getMock('ComicPressManager');
+    $comicpress_manager = $this->getMock('ComicPressManager', array('read_information_and_check_config'));
     $comicpress_manager->expects($this->any())->method('read_information_and_check_config');
     
     $plugin_page = "meow";
