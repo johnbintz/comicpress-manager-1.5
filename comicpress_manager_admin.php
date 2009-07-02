@@ -4,7 +4,7 @@
 
 require_once('classes/ComicPressManager.php');
 require_once('classes/ComicPressManagerAdmin.php');
-require_once('FirePHPCore/fb.php');
+//require_once('FirePHPCore/fb.php');
 
 include('cp_configuration_options.php');
 

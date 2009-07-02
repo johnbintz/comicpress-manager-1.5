@@ -58,52 +58,45 @@ class ComicPressManagerAdminTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals("", ob_get_clean());
   }
   
-  function testVerifyPostBeforeHook() {
+  function providerTestVerifyPostBeforeHook() {
+    return array(
+      array(true, null, null, null),
+      array(false, false, null, null),
+      array(false, true, false, null),
+      array(false, true, true, false),
+      array(false, true, true, true),
+    );
+  }
+  
+  /**
+   * @dataProvider providerTestVerifyPostBeforeHook
+   */
+  function testVerifyPostBeforeHook($is_managing, $edit_post_integration, $good_post, $is_entry_post) {
     global $comicpress_manager;
 
-    // managing posts?
     $comicpress_manager = $this->getMock("ComicPressManager", array('get_cpm_option'));
-    $comicpress_manager->is_cpm_managing_posts = true;
-    $comicpress_manager->expects($this->never())->method('get_cpm_option');    
-    $this->assertFalse($this->adm->_verify_post_before_hook(1));
-    
-    // not managing posts? user called, but not managing
-    $comicpress_manager = $this->getMock("ComicPressManager", array('get_cpm_option'));
-    $comicpress_manager->is_cpm_managing_posts = false;
-    $comicpress_manager->expects($this->once())
-                       ->method('get_cpm_option')
-                       ->will($this->returnValue("0"));
-    $this->assertFalse($this->adm->_verify_post_before_hook(1));
+    $comicpress_manager->is_cpm_managing_posts = $is_managing;
 
-    // user called, managing, but bad post
-    $comicpress_manager = $this->getMock("ComicPressManager", array('get_cpm_option'));
-    $comicpress_manager->is_cpm_managing_posts = false;
-    $comicpress_manager->expects($this->once())
-                       ->method('get_cpm_option')
-                       ->will($this->returnValue("1"));
-    $this->assertFalse($this->adm->_verify_post_before_hook(1));
+    $expected_result = false;
 
-    // user called, managing, good post but not an Entry
-    $comicpress_manager = $this->getMock("ComicPressManager", array('get_cpm_option'));
-    $comicpress_manager->is_cpm_managing_posts = false;
-    $comicpress_manager->expects($this->once())
-                       ->method('get_cpm_option')
-                       ->will($this->returnValue("1"));
-    $id = wp_insert_post(array(
-      'post_type' => 'page'
-    ));
-    $this->assertFalse($this->adm->_verify_post_before_hook($id));
+    if ($is_managing) {
+      $comicpress_manager->expects($this->never())->method('get_cpm_option');    
+    } else {
+      $comicpress_manager->expects($this->once())
+                         ->method('get_cpm_option')
+                         ->will($this->returnValue($edit_post_integration ? "1" : "0"));
+      if ($good_post) {
+        $id = wp_insert_post(array(
+          'post_type' => $is_entry_post ? "entry" : "page"
+        ));
+        
+        if ($is_entry_post) {
+          $expected_result = (object)array('post_type' => 'entry', 'ID' => $id);
+        }
+      }
+    }
     
-    // is a valid entry
-    $comicpress_manager = $this->getMock("ComicPressManager", array('get_cpm_option'));
-    $comicpress_manager->is_cpm_managing_posts = false;
-    $comicpress_manager->expects($this->once())
-                       ->method('get_cpm_option')
-                       ->will($this->returnValue("1"));
-    $id = wp_insert_post(array(
-      'post_type' => 'entry'
-    ));
-    $this->assertEquals((object)array('post_type' => 'entry', 'ID' => $id), $this->adm->_verify_post_before_hook($id));
+    $this->assertEquals($expected_result, $this->adm->_verify_post_before_hook($id));
   }
   
   function testIsPostInComicCategory() {
